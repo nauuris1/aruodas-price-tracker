@@ -11,7 +11,11 @@ SENDER_PASSWORD = os.environ["APP_PASSWORD"]
 RECEIVER_EMAIL = os.environ["EMAIL"]
 
 def get_price():
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Referer": "https://www.google.com/"
+}
     r = requests.get(URL, headers=headers)
 
     print("Status code:", r.status_code)
