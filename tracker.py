@@ -15,8 +15,19 @@ def get_price():
     r = requests.get(URL, headers=headers)
     soup = BeautifulSoup(r.text, "html.parser")
 
-    price = soup.find(string=lambda t: t and "€" in t)
-    return price.strip() if price else None
+    # METHOD 1: common Aruodas price container
+    price = soup.select_one(".obj-price")
+
+    if price:
+        return price.get_text(strip=True)
+
+    # METHOD 2: fallback search for euro text
+    text = soup.find_all(string=lambda t: t and "€" in t)
+
+    if text:
+        return text[0].strip()
+
+    return None
 
 def send_email(old, new):
     msg = MIMEText(f"Price changed!\n\nOld: {old}\nNew: {new}\n\n{URL}")
