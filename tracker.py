@@ -13,21 +13,14 @@ RECEIVER_EMAIL = os.environ["EMAIL"]
 def get_price():
     headers = {"User-Agent": "Mozilla/5.0"}
     r = requests.get(URL, headers=headers)
-    soup = BeautifulSoup(r.text, "html.parser")
 
-    # METHOD 1: common Aruodas price container
-    price = soup.select_one(".obj-price")
+    print("Status code:", r.status_code)
+    print("Page length:", len(r.text))
 
-    if price:
-        return price.get_text(strip=True)
+    with open("debug.html", "w", encoding="utf-8") as f:
+        f.write(r.text)
 
-    # METHOD 2: fallback search for euro text
-    text = soup.find_all(string=lambda t: t and "€" in t)
-
-    if text:
-        return text[0].strip()
-
-    return None
+    return "DEBUG"
 
 def send_email(old, new):
     msg = MIMEText(f"Price changed!\n\nOld: {old}\nNew: {new}\n\n{URL}")
