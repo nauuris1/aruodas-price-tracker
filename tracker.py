@@ -1,43 +1,45 @@
-import requests
-from bs4 import BeautifulSoup
-import os
+from playwright.sync_api import sync_playwright
 import smtplib
 from email.mime.text import MIMEText
+import os
 
 URL = "https://m.en.aruodas.lt/sklypai-kedainiuose-keleriskiu-k-jaunimo-g-parduodamas-aru-namu-valdos-sklypas-su-11-1463258/"
 
-SENDER_EMAIL = os.environ["EMAIL"]
-SENDER_PASSWORD = os.environ["APP_PASSWORD"]
-RECEIVER_EMAIL = os.environ["EMAIL"]
-
-def get_price():
-    headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
-    "Accept-Language": "en-US,en;q=0.9",
-    "Referer": "https://www.google.com/"
-}
-    r = requests.get(URL, headers=headers)
-
-    print("Status code:", r.status_code)
-    print("Page length:", len(r.text))
-
-    with open("debug.html", "w", encoding="utf-8") as f:
-        f.write(r.text)
-
-    return "DEBUG"
+EMAIL = os.environ["EMAIL"]
+APP_PASSWORD = os.environ["APP_PASSWORD"]
 
 def send_email(old, new):
     msg = MIMEText(f"Price changed!\n\nOld: {old}\nNew: {new}\n\n{URL}")
     msg["Subject"] = "Aruodas Price Alert"
-    msg["From"] = SENDER_EMAIL
-    msg["To"] = RECEIVER_EMAIL
+    msg["From"] = EMAIL
+    msg["To"] = EMAIL
 
     with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.login(EMAIL, APP_PASSWORD)
         server.send_message(msg)
+
+def get_price():
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+
+        page.goto(URL, timeout=60000)
+
+        # wait for page to load
+        page.wait_for_timeout(5000)
+
+        # try to grab price
+        price = page.query_selector(".obj-price")
+
+        if price:
+            return price.inner_text().strip()
+
+        browser.close()
+        return None
 
 def main():
     current = get_price()
+
     if not current:
         print("No price found")
         return
@@ -47,7 +49,8 @@ def main():
     except:
         old = ""
 
-    print("Old:", old, "New:", current)
+    print("Old:", old)
+    print("New:", current)
 
     if old and old != current:
         send_email(old, current)
