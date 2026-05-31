@@ -25,16 +25,28 @@ def get_price():
 
         page.goto(URL, timeout=60000)
 
-        # wait for page to load
+        # wait for page to fully load
         page.wait_for_timeout(5000)
 
-        # try to grab price
-        price = page.query_selector(".obj-price")
+        # try multiple ways to find price
+        selectors = [
+            ".obj-price",
+            "span:has-text('€')",
+            "[class*='price']"
+        ]
 
-        if price:
-            return price.inner_text().strip()
+        for sel in selectors:
+            el = page.query_selector(sel)
+            if el:
+                price = el.inner_text().strip()
+                if "€" in price:
+                    browser.close()
+                    return price
 
+        # fallback: search whole page text
+        content = page.content()
         browser.close()
+
         return None
 
 def main():
