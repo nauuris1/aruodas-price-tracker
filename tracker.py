@@ -6,9 +6,9 @@ from email.mime.text import MIMEText
 
 URL = "https://m.en.aruodas.lt/sklypai-kedainiuose-keleriskiu-k-jaunimo-g-parduodamas-aru-namu-valdos-sklypas-su-11-1463258/"
 
-SENDER_EMAIL = os.environ["EMAIL"]
-SENDER_PASSWORD = os.environ["APP_PASSWORD"]
-RECEIVER_EMAIL = os.environ["EMAIL"]
+SENDER_EMAIL = os.environ["landplotbot@gmail.com"]
+SENDER_PASSWORD = os.environ["$26NPlane26$"]
+RECEIVER_EMAIL = os.environ["naurisnaruse@gmail.com"]
 
 def get_price():
     headers = {"User-Agent": "Mozilla/5.0"}
