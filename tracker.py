@@ -24,21 +24,15 @@ def get_price():
         page = browser.new_page()
 
         page.goto(URL, timeout=60000)
-
-        # wait for full JS render
         page.wait_for_timeout(8000)
 
-        # grab FULL visible text
+        print("TITLE:", page.title())
+
         text = page.inner_text("body")
+        print("BODY SAMPLE:")
+        print(text[:2000])
 
         browser.close()
-
-        # find euro price in text
-        import re
-        prices = re.findall(r"\d[\d\s]*\s?€", text)
-
-        if prices:
-            return prices[0].strip()
 
         return None
 
